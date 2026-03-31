@@ -25,7 +25,7 @@ That's it. Docker handles everything else.
 
 ### 1. Clone the repository
 ```bash
-git clone git@github.com:Daominh09/mock-me.git
+git clone https://github.com/Daominh09/mock-me.git
 cd mock-me
 ```
 
@@ -109,7 +109,7 @@ mock-me/
 │   ├── Dockerfile.backend
 │   └── Dockerfile.frontend
 ├── docker-compose.yml
-└── sample.env                # Copy this to .env
+└── .env                
 ```
 
 ## Running Django Commands
