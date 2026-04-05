@@ -17,6 +17,7 @@ DJANGO_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "django.contrib.postgres",
 ]
 
 THIRD_PARTY_APPS = [
@@ -75,6 +76,9 @@ DATABASES = {
         'PASSWORD': env('DB_PASSWORD'),
         'HOST': env('DB_HOST', default='localhost'),
         'PORT': env('DB_PORT', default='5432'),
+        'OPTIONS': {
+            'sslmode': 'require',
+        },
     }
 }
 
