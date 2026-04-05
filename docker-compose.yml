@@ -1,21 +1,5 @@
 services:
 
-  db:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: mockme_db
-      POSTGRES_USER: mockme_user
-      POSTGRES_PASSWORD: mockme_pass
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mockme_user -d mockme_db"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
   redis:
     image: redis:7-alpine
     ports:
@@ -37,8 +21,6 @@ services:
     env_file:
       - .env
     depends_on:
-      db:
-        condition: service_healthy
       redis:
         condition: service_healthy
     command: >
@@ -57,5 +39,3 @@ services:
     depends_on:
       - backend
 
-volumes:
-  postgres_data:
