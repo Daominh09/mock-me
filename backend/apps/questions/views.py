@@ -73,7 +73,8 @@ class QuestionViewSet(viewsets.ReadOnlyModelViewSet):
         question = qs.order_by("?").first()
         if not question:
             return Response(
-                {"detail": "No questions match the given filters."}, status=404
+                {"detail": "No questions match the given filters. Please adjust your filters and try again."},
+                status=404,
             )
         return Response(QuestionDetailSerializer(question).data)
 

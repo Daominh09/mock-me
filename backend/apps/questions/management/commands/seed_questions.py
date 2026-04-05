@@ -1,131 +1,137 @@
 """
-Seed the database with sample questions for development/testing.
+Seed the database from a structured JSON file.
 
 Usage:
-    docker compose exec backend python manage.py seed_questions
-    docker compose exec backend python manage.py seed_questions --clear  # wipe first
+    python manage.py seed_questions --file data/leetcode_problems.json
+    python manage.py seed_questions --file data/leetcode_problems.json --clear
 """
 
-from django.core.management.base import BaseCommand
+import json
+from pathlib import Path
+from django.core.management.base import BaseCommand, CommandError
 from apps.questions.models import Question
 
+COMPANY_ALIASES = {
+    "google": "Google",
+    "meta": "Meta",
+    "facebook": "Meta",
+    "amazon": "Amazon",
+    "microsoft": "Microsoft",
+    "bloomberg": "Bloomberg",
+    "apple": "Apple",
+    "netflix": "Netflix",
+    "uber": "Uber",
+    "airbnb": "Airbnb",
+    "twitter": "Twitter",
+    "linkedin": "LinkedIn",
+    "salesforce": "Salesforce",
+    "nvidia": "Nvidia",
+    "accenture": "Accenture",
+    "adobe": "Adobe",
+    "oracle": "Oracle",
+    "tiktok": "TikTok",
+    "bytedance": "ByteDance",
+    "goldman sachs": "Goldman Sachs",
+    "jpmorgan": "JPMorgan",
+    "morgan stanley": "Morgan Stanley",
+}
 
-SAMPLE_QUESTIONS = [
-    {
-        "title": "Two Sum",
-        "slug": "two-sum",
-        "leetcode_number": 1,
-        "difficulty": "easy",
-        "description": (
-            "Given an array of integers `nums` and an integer `target`, "
-            "return indices of the two numbers such that they add up to `target`.\n\n"
-            "You may assume that each input would have exactly one solution, "
-            "and you may not use the same element twice."
-        ),
-        "constraints": "2 <= nums.length <= 10^4\n-10^9 <= nums[i] <= 10^9",
-        "examples": [
-            {"input": "nums = [2,7,11,15], target = 9", "output": "[0,1]", "explanation": "nums[0] + nums[1] == 9"},
-        ],
-        "starter_code": {"python": "class Solution:\n    def twoSum(self, nums: list[int], target: int) -> list[int]:\n        pass"},
-        "topic_tags": ["array", "hash-table"],
-        "company_tags": ["Google", "Amazon", "Meta"],
-    },
-    {
-        "title": "Longest Substring Without Repeating Characters",
-        "slug": "longest-substring-without-repeating-characters",
-        "leetcode_number": 3,
-        "difficulty": "medium",
-        "description": (
-            "Given a string `s`, find the length of the longest substring "
-            "without repeating characters."
-        ),
-        "constraints": "0 <= s.length <= 5 * 10^4\ns consists of English letters, digits, symbols and spaces.",
-        "examples": [
-            {"input": 's = "abcabcbb"', "output": "3", "explanation": 'The answer is "abc", with length 3.'},
-        ],
-        "starter_code": {"python": "class Solution:\n    def lengthOfLongestSubstring(self, s: str) -> int:\n        pass"},
-        "topic_tags": ["string", "sliding-window", "hash-table"],
-        "company_tags": ["Amazon", "Bloomberg", "Microsoft"],
-    },
-    {
-        "title": "Merge Intervals",
-        "slug": "merge-intervals",
-        "leetcode_number": 56,
-        "difficulty": "medium",
-        "description": (
-            "Given an array of intervals where `intervals[i] = [start_i, end_i]`, "
-            "merge all overlapping intervals, and return an array of the non-overlapping "
-            "intervals that cover all the intervals in the input."
-        ),
-        "constraints": "1 <= intervals.length <= 10^4\nintervals[i].length == 2",
-        "examples": [
-            {"input": "intervals = [[1,3],[2,6],[8,10],[15,18]]", "output": "[[1,6],[8,10],[15,18]]", "explanation": "Intervals [1,3] and [2,6] overlap."},
-        ],
-        "starter_code": {"python": "class Solution:\n    def merge(self, intervals: list[list[int]]) -> list[list[int]]:\n        pass"},
-        "topic_tags": ["array", "sorting"],
-        "company_tags": ["Google", "Meta", "Bloomberg"],
-    },
-    {
-        "title": "Number of Islands",
-        "slug": "number-of-islands",
-        "leetcode_number": 200,
-        "difficulty": "medium",
-        "description": (
-            "Given an m x n 2D binary grid which represents a map of '1's (land) "
-            "and '0's (water), return the number of islands."
-        ),
-        "constraints": "m == grid.length\nn == grid[i].length\n1 <= m, n <= 300",
-        "examples": [
-            {"input": 'grid = [["1","1","0"],["1","1","0"],["0","0","1"]]', "output": "2", "explanation": "Two connected components of 1s."},
-        ],
-        "starter_code": {"python": "class Solution:\n    def numIslands(self, grid: list[list[str]]) -> int:\n        pass"},
-        "topic_tags": ["graph", "bfs", "dfs"],
-        "company_tags": ["Amazon", "Microsoft", "Google"],
-    },
-    {
-        "title": "Trapping Rain Water",
-        "slug": "trapping-rain-water",
-        "leetcode_number": 42,
-        "difficulty": "hard",
-        "description": (
-            "Given n non-negative integers representing an elevation map where "
-            "the width of each bar is 1, compute how much water it can trap after raining."
-        ),
-        "constraints": "n == height.length\n1 <= n <= 2 * 10^4\n0 <= height[i] <= 10^5",
-        "examples": [
-            {"input": "height = [0,1,0,2,1,0,1,3,2,1,2,1]", "output": "6", "explanation": "6 units of rain water are trapped."},
-        ],
-        "starter_code": {"python": "class Solution:\n    def trap(self, height: list[int]) -> int:\n        pass"},
-        "topic_tags": ["array", "two-pointers", "dp", "stack"],
-        "company_tags": ["Goldman Sachs", "Google", "Amazon"],
-    },
-]
+TOPIC_ALIASES = {
+    "arrays": "array",
+    "dynamic programming": "dp",
+    "dynamic-programming": "dp",
+    "two pointers": "two-pointers",
+    "sliding window": "sliding-window",
+    "hash table": "hash-table",
+    "hash map": "hash-table",
+    "graphs": "graph",
+    "trees": "tree",
+    "linked list": "linked-list",
+    "binary search": "binary-search",
+    "bit manipulation": "bit-manipulation",
+}
+
+REQUIRED_FIELDS = {"title", "slug", "difficulty", "description"}
+VALID_DIFFICULTIES = {"easy", "medium", "hard"}
+
+
+def normalize_company(name: str) -> str | None:
+    """Return a normalized company name, or None to skip unknown short codes."""
+    cleaned = name.lower().strip()
+    if cleaned in COMPANY_ALIASES:
+        return COMPANY_ALIASES[cleaned]
+    # Skip entries that look like internal codes (e.g. "6sense", "1kosmos")
+    # but keep anything that looks like a real name
+    if name[0].isdigit():
+        return None
+    return name.strip().title()
+
+
+def normalize_topic(name: str) -> str:
+    cleaned = name.lower().strip()
+    return TOPIC_ALIASES.get(cleaned, cleaned)
+
+
+def validate(data: dict, index: int) -> list[str]:
+    errors = []
+    missing = REQUIRED_FIELDS - data.keys()
+    if missing:
+        errors.append(f"[{index}] Missing fields: {missing}")
+    if data.get("difficulty") not in VALID_DIFFICULTIES:
+        errors.append(f"[{index}] Invalid difficulty: {data.get('difficulty')!r}")
+    return errors
 
 
 class Command(BaseCommand):
-    help = "Seed the database with sample LeetCode questions"
+    help = "Seed questions from a JSON file into the database"
 
     def add_arguments(self, parser):
-        parser.add_argument(
-            "--clear",
-            action="store_true",
-            help="Delete all existing questions before seeding",
-        )
+        parser.add_argument("--file", required=True, help="Path to questions JSON file")
+        parser.add_argument("--clear", action="store_true", help="Delete all questions before loading")
 
-    def handle(self, *args, **options):
+    def handle(self, *_args, **options):
+        path = Path(options["file"])
+        if not path.exists():
+            raise CommandError(f"File not found: {path}")
+
+        data = json.loads(path.read_text())
+        if not isinstance(data, list):
+            raise CommandError("JSON root must be a list of question objects")
+
+        # Validate all entries first — fail before touching the DB
+        all_errors = []
+        for i, item in enumerate(data):
+            all_errors.extend(validate(item, i))
+        if all_errors:
+            for err in all_errors:
+                self.stderr.write(self.style.ERROR(err))
+            raise CommandError("Validation failed — no records written")
+
         if options["clear"]:
             deleted, _ = Question.objects.all().delete()
             self.stdout.write(f"Cleared {deleted} existing questions.")
 
-        created = 0
-        for q_data in SAMPLE_QUESTIONS:
+        created = updated = 0
+        for item in data:
+            # Normalize company tags — drop unrecognized codes
+            raw_companies = item.get("company_tags") or []
+            item["company_tags"] = sorted({
+                normalized for c in raw_companies
+                if (normalized := normalize_company(c)) is not None
+            })
+
+            # Normalize topic tags
+            raw_topics = item.get("topic_tags") or []
+            item["topic_tags"] = sorted({normalize_topic(t) for t in raw_topics})
+
             _, was_created = Question.objects.update_or_create(
-                slug=q_data["slug"],
-                defaults=q_data,
+                slug=item["slug"], defaults=item
             )
             if was_created:
                 created += 1
+            else:
+                updated += 1
 
-        self.stdout.write(
-            self.style.SUCCESS(f"Done — {created} created, {len(SAMPLE_QUESTIONS) - created} updated.")
-        )
+        self.stdout.write(self.style.SUCCESS(
+            f"Done — {created} created, {updated} updated."
+        ))
