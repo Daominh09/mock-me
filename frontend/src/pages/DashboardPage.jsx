@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/layout/Sidebar';
 import useSessionStore from '../store/sessionStore';
+import api from '../api/api';
 
 // ── Palette shortcuts ─────────────────────────────────────────────────────────
 const DARK = '#1C1917'; // page bg
@@ -30,7 +32,11 @@ const TRENDING = [
 ];
 
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
-const STYLES       = ['Friendly', 'Challenge', 'Thinking'];
+const STYLES = [
+  { label: 'Technical',  value: 'technical' },
+  { label: 'Behavioral', value: 'behavioral' },
+  { label: 'Mixed',      value: 'mixed' },
+];
 
 // ── Quick stats bar ───────────────────────────────────────────────────────────
 const QUICK_STATS = [
@@ -110,16 +116,22 @@ function Select({ placeholder, options, value, onChange }) {
 const LOCAL_DEFAULTS = { role: '', category: '', difficulties: [] };
 
 function InterviewSetup() {
+  const navigate = useNavigate();
+
   // Global state — company and style are shared with the rest of the app
-  const company   = useSessionStore((s) => s.company);
-  const style     = useSessionStore((s) => s.style);
-  const setCompany = useSessionStore((s) => s.setCompany);
-  const setStyle   = useSessionStore((s) => s.setStyle);
+  const company      = useSessionStore((s) => s.company);
+  const style        = useSessionStore((s) => s.style);
+  const setCompany   = useSessionStore((s) => s.setCompany);
+  const setStyle     = useSessionStore((s) => s.setStyle);
+  const setSessionId = useSessionStore((s) => s.setSessionId);
+  const setQuestion  = useSessionStore((s) => s.setQuestion);
 
   // Local state — only needed inside this form
   const [role,         setRole]         = useState(LOCAL_DEFAULTS.role);
   const [category,     setCategory]     = useState(LOCAL_DEFAULTS.category);
   const [difficulties, setDifficulties] = useState(LOCAL_DEFAULTS.difficulties);
+  const [loading,      setLoading]      = useState(false);
+  const [error,        setError]        = useState(null);
 
   function toggleDifficulty(d) {
     setDifficulties((prev) =>
@@ -128,14 +140,56 @@ function InterviewSetup() {
   }
 
   function handleReset() {
-    // Reset local fields
     setRole(LOCAL_DEFAULTS.role);
     setCategory(LOCAL_DEFAULTS.category);
     setDifficulties(LOCAL_DEFAULTS.difficulties);
-    // Reset global fields back to store defaults
     setCompany('');
-    setStyle('Friendly');
+    setStyle('technical');
+    setError(null);
   }
+
+  async function handleStart() {
+    setLoading(true);
+    setError(null);
+    try {
+      // Step 1: pick a random question matching the filters
+      const params = {};
+      if (company)              params.company    = company;
+      if (difficulties.length)  params.difficulty = difficulties.map((d) => d.toLowerCase()).join(',');
+
+      const questionRes = await api.get('/api/questions/random/', { params });
+      const questionSlug = questionRes.data.slug;
+
+      // Step 2: create the session with the chosen question slug
+      const sessionRes = await api.post('/api/sessions/start/', {
+        question_slug:    questionSlug,
+        interview_style:  style,
+      });
+
+      setSessionId(sessionRes.data.id);
+      setQuestion(sessionRes.data.question);
+      navigate('/interview');
+    } catch (err) {
+      const msg = err.response?.data?.detail || 'No questions found for your filters. Try broadening your selection.';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Mock data for testing without backend
+  // async function handleStart() {
+  //   setSessionId('test-session-123');
+  //   setQuestion({
+  //     title: 'Two Sum',
+  //     description: 'Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.\n\nYou may assume each input has exactly one solution, and you may not use the same element twice.\n\nReturn the answer in any order.',
+  //     constraints: '2 <= nums.length <= 10^4\n-10^9 <= nums[i] <= 10^9\nOnly one valid answer exists.',
+  //     difficulty: 'easy',
+  //     company_tags: ['Google', 'Amazon'],
+  //     topic_tags: ['array', 'hash-table'],
+  //   });
+  //   navigate('/interview');
+  // }
 
   return (
     <div className="border border-white/12 rounded-2xl overflow-hidden bg-[#1E1C1A]">
@@ -210,13 +264,13 @@ function InterviewSetup() {
           <div>
             <div className="flex gap-2 flex-wrap">
               {STYLES.map((s) => (
-                <button key={s} onClick={() => setStyle(s)}
+                <button key={s.value} onClick={() => setStyle(s.value)}
                   className={`px-4 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 ${
-                    style === s
+                    style === s.value
                       ? 'border-[#A5CDFE]/60 text-[#A5CDFE] bg-[#A5CDFE]/10'
                       : 'border-white/15 text-white/45 hover:border-white/30 hover:text-white/70'
                   }`}>
-                  {s}
+                  {s.label}
                 </button>
               ))}
             </div>
@@ -229,13 +283,20 @@ function InterviewSetup() {
 
       {/* Footer */}
       <div className="flex items-center justify-between px-5 py-4 border-t border-white/8 bg-[#1A1815]">
-        <span className="text-[#6E6E6E] text-xs">Questions is picked by AI</span>
+        <div className="flex flex-col gap-1">
+          <span className="text-[#6E6E6E] text-xs">Questions is picked by AI</span>
+          {error && <span className="text-red-400 text-xs">{error}</span>}
+        </div>
         <div className="flex items-center gap-3">
           <button onClick={handleReset} className="text-white/40 hover:text-white/70 text-xs transition-colors">
             Reset to default
           </button>
-          <button className="bg-[#A5CDFE] hover:bg-[#c2dcfe] text-[#1C1917] text-xs font-bold px-5 py-2 rounded-xl transition-colors">
-            Start Interview
+          <button
+            onClick={handleStart}
+            disabled={loading}
+            className="bg-[#A5CDFE] hover:bg-[#c2dcfe] disabled:opacity-50 disabled:cursor-not-allowed text-[#1C1917] text-xs font-bold px-5 py-2 rounded-xl transition-colors"
+          >
+            {loading ? 'Starting…' : 'Start Interview'}
           </button>
         </div>
       </div>

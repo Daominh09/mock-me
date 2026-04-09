@@ -5,13 +5,13 @@ import { create } from 'zustand';
  *
  * Fields:
  *   company   — selected company name (string)
- *   style     — interviewer style: 'Friendly' | 'Challenge' | 'Thinking'
+ *   style     — interviewer style: 'technical' | 'behavioral' | 'mixed'
  *   sessionId — returned by POST /api/start-session (null until session starts)
  *   question  — full question object returned by the backend (null until session starts)
  */
 const useSessionStore = create((set) => ({
   company:   '',
-  style:     'Friendly',
+  style:     'technical',
   sessionId: null,
   question:  null,
 
@@ -24,7 +24,7 @@ const useSessionStore = create((set) => ({
   clearSession: () => set({ sessionId: null, question: null }),
 
   // Full reset back to initial state
-  resetAll: () => set({ company: '', style: 'Friendly', sessionId: null, question: null }),
+  resetAll: () => set({ company: '', style: 'technical', sessionId: null, question: null }),
 }));
 
 export default useSessionStore;
