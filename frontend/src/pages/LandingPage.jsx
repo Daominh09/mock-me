@@ -294,7 +294,7 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="text-center px-8 pt-20 pb-24 max-w-[1440px] mx-auto">
         <h1 className="text-6xl md:text-8xl font-bold leading-tight tracking-tight mb-6">
-          <span className="underline decoration-white/50 underline-offset-4">Land</span> Your Dream Job
+          Land Your Dream Job
           <br />
           With Our{' '}
           <span className="text-[#A5CDFE]">(AI Name).</span>

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import Button from '../ui/Button';
 
-const NAV_LINKS = ['Questions', 'Companies', 'Practice', 'FAQ'];
+const NAV_LINKS = ['Roles', 'Companies', 'Practice', 'FAQ'];
 
 export default function Navbar() {
   return (

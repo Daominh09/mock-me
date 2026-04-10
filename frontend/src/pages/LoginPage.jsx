@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { signInWithGoogle, signInWithEmail } from '../services/authService';
 
 function GoogleIcon() {
   return (
@@ -12,14 +14,42 @@ function GoogleIcon() {
 }
 
 export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  async function handleGoogleLogin() {
+    setError(null);
+    try {
+      await signInWithGoogle();
+      // page will redirect to Google; no navigate needed
+    } catch (e) {
+      setError(e.message);
+    }
+  }
+
+  async function handleEmailLogin(e) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    try {
+      await signInWithEmail(email, password);
+      navigate('/dashboard');
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#1C1917] flex flex-col page-enter">
-      {/* Logo */}
       <Link to="/" className="font-bold text-white text-sm leading-tight p-8 w-fit">
         Mock Me<br />Logo
       </Link>
 
-      {/* Form */}
       <div className="flex-1 flex items-center justify-center px-4">
         <div className="w-full max-w-md">
           <h1 className="text-5xl font-bold text-white text-center mb-3">Log in Mock Me</h1>
@@ -30,43 +60,55 @@ export default function LoginPage() {
             </Link>
           </p>
 
-          {/* Google */}
-          <button className="w-full flex items-center justify-center gap-3 border border-white/20 rounded-xl py-3.5 text-white text-sm font-medium hover:bg-white/5 transition-colors mb-6">
+          {error && (
+            <p className="text-red-400 text-sm text-center mb-4">{error}</p>
+          )}
+
+          <button
+            onClick={handleGoogleLogin}
+            className="w-full flex items-center justify-center gap-3 border border-white/20 rounded-xl py-3.5 text-white text-sm font-medium hover:bg-white/5 transition-colors mb-6"
+          >
             <GoogleIcon />
             Continue with Google
           </button>
 
-          {/* Divider */}
           <div className="flex items-center gap-4 mb-6">
             <div className="flex-1 border-t border-white/15" />
             <span className="text-white/35 text-xs">or continue with</span>
             <div className="flex-1 border-t border-white/15" />
           </div>
 
-          {/* Email / Password */}
-          <div className="flex flex-col gap-3 mb-5">
+          <form onSubmit={handleEmailLogin} className="flex flex-col gap-3 mb-5">
             <input
               type="email"
               placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
               className="w-full bg-transparent border border-white/20 rounded-xl px-4 py-3.5 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/40 transition-colors"
             />
             <input
               type="password"
               placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
               className="w-full bg-transparent border border-white/20 rounded-xl px-4 py-3.5 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/40 transition-colors"
             />
-          </div>
-
-          {/* Submit */}
-          <button className="w-full bg-[#F0EDE8] hover:bg-white text-black font-semibold rounded-xl py-3.5 text-sm transition-colors mb-6">
-            Log In
-          </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-[#F0EDE8] hover:bg-white text-black font-semibold rounded-xl py-3.5 text-sm transition-colors disabled:opacity-50"
+            >
+              {loading ? 'Signing in…' : 'Log In'}
+            </button>
+          </form>
 
           <p className="text-center text-white/40 text-sm">
             Forgot your password?{' '}
-            <a href="#" className="text-[#60A5FA] font-medium hover:underline">
+            <button className="text-[#60A5FA] font-medium hover:underline">
               Reset here
-            </a>
+            </button>
           </p>
         </div>
       </div>

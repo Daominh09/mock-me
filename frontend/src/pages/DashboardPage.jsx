@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Sidebar from '../components/layout/Sidebar';
 import useSessionStore from '../store/sessionStore';
+import SearchableDropdown from '../components/ui/SearchableDropdown';
 
 // ── Palette shortcuts ─────────────────────────────────────────────────────────
 const DARK = '#1C1917'; // page bg
@@ -87,38 +88,23 @@ const RECENT = [
   { company: 'Amazon', role: 'SDE', score: 85, tag: 'System Design' },
 ];
 
-// ── Dropdown helper ───────────────────────────────────────────────────────────
-function Select({ placeholder, options, value, onChange }) {
-  return (
-    <div className="relative">
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full appearance-none bg-[#252220] border border-white/12 rounded-xl px-4 py-2.5 text-white/40 text-sm focus:outline-none focus:border-[#A5CDFE]/40 cursor-pointer transition-colors"
-      >
-        <option value="" disabled>{placeholder}</option>
-        {options.map((o) => <option key={o}>{o}</option>)}
-      </select>
-      <svg viewBox="0 0 24 24" className="h-4 w-4 text-white/25 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" strokeWidth="2">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
-      </svg>
-    </div>
-  );
-}
-
 // ── Interview setup card ──────────────────────────────────────────────────────
-const LOCAL_DEFAULTS = { role: '', category: '', difficulties: [] };
+const STYLE_CAPTIONS = {
+  Friendly:  'Practice mode — supportive interviewer, great for beginners.',
+  Challenge: 'Pushes back on your answers to test depth and confidence.',
+  Thinking:  'Socratic style — guides you to think aloud step by step.',
+};
+
+const LOCAL_DEFAULTS = { role: '', topics: [], difficulties: [] };
 
 function InterviewSetup() {
-  // Global state — company and style are shared with the rest of the app
-  const company   = useSessionStore((s) => s.company);
-  const style     = useSessionStore((s) => s.style);
-  const setCompany = useSessionStore((s) => s.setCompany);
-  const setStyle   = useSessionStore((s) => s.setStyle);
+  const companies    = useSessionStore((s) => s.companies);
+  const style        = useSessionStore((s) => s.style);
+  const setCompanies = useSessionStore((s) => s.setCompanies);
+  const setStyle     = useSessionStore((s) => s.setStyle);
 
-  // Local state — only needed inside this form
   const [role,         setRole]         = useState(LOCAL_DEFAULTS.role);
-  const [category,     setCategory]     = useState(LOCAL_DEFAULTS.category);
+  const [topics,       setTopics]       = useState(LOCAL_DEFAULTS.topics);
   const [difficulties, setDifficulties] = useState(LOCAL_DEFAULTS.difficulties);
 
   function toggleDifficulty(d) {
@@ -128,14 +114,27 @@ function InterviewSetup() {
   }
 
   function handleReset() {
-    // Reset local fields
     setRole(LOCAL_DEFAULTS.role);
-    setCategory(LOCAL_DEFAULTS.category);
+    setTopics(LOCAL_DEFAULTS.topics);
     setDifficulties(LOCAL_DEFAULTS.difficulties);
-    // Reset global fields back to store defaults
-    setCompany('');
+    setCompanies([]);
     setStyle('Friendly');
   }
+
+  // Dynamic difficulty caption
+  function diffCaption() {
+    if (difficulties.length === 0) {
+      return <><span className="text-white/50 font-medium">None selected</span> = all difficulties included.</>;
+    }
+    if (difficulties.length === DIFFICULTIES.length) {
+      return <>All difficulties included.</>;
+    }
+    return <>Selected: {difficulties.map((d, i) => (
+      <span key={d}>{i > 0 && ', '}<span className="text-white/50 font-medium">{d}</span></span>
+    ))}.</>;
+  }
+
+  const COL = 'grid grid-cols-[168px_1fr] gap-4 items-start p-5';
 
   return (
     <div className="border border-white/12 rounded-2xl overflow-hidden bg-[#1E1C1A]">
@@ -154,37 +153,63 @@ function InterviewSetup() {
 
       {/* Fields */}
       <div className="divide-y divide-white/8">
-        <div className="grid grid-cols-[140px_1fr] gap-4 items-start p-5">
+        <div className={COL}>
           <label className="font-medium text-white/80 text-sm pt-2.5">Role</label>
           <div>
-            <Select placeholder="Select a role" options={['Software Engineer', 'Product Manager', 'Data Scientist', 'ML Engineer', 'System Design']} value={role} onChange={setRole}/>
+            <SearchableDropdown
+              placeholder="Select a role"
+              options={['Software Engineer', 'Product Manager', 'Data Scientist', 'ML Engineer', 'System Design']}
+              value={role}
+              onChange={setRole}
+            />
             <p className="text-[#6E6E6E] text-xs mt-1.5">
-              <span className="text-white/50 font-medium">Any (default)</span>: All role and question types selected.
+              {role
+                ? <>Role: <span className="text-white/50 font-medium">{role}</span></>
+                : <><span className="text-white/50 font-medium">Any (default)</span>: All role types selected.</>
+              }
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-[140px_1fr] gap-4 items-start p-5">
+        <div className={COL}>
           <label className="font-medium text-white/80 text-sm pt-2.5">Company</label>
           <div>
-            <Select placeholder="Select one or many companies" options={['Google', 'Meta', 'Amazon', 'Apple', 'Microsoft', 'TikTok', 'Netflix', 'Stripe', 'Airbnb', 'OpenAI']} value={company} onChange={setCompany}/>
+            <SearchableDropdown
+              placeholder="Select companies"
+              options={['Google', 'Meta', 'Amazon', 'Apple', 'Microsoft', 'TikTok', 'Netflix', 'Stripe', 'Airbnb', 'OpenAI']}
+              value={companies}
+              onChange={setCompanies}
+              multiple
+            />
             <p className="text-[#6E6E6E] text-xs mt-1.5">
-              <span className="text-white/50 font-medium">Any (default)</span>: All company selected.
+              {companies.length > 0
+                ? <>Selected: <span className="text-white/50 font-medium">{companies.join(', ')}</span></>
+                : <><span className="text-white/50 font-medium">Any (default)</span>: All companies selected.</>
+              }
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-[140px_1fr] gap-4 items-start p-5">
-          <label className="font-medium text-white/80 text-sm pt-2.5">Category</label>
+        <div className={COL}>
+          <label className="font-medium text-white/80 text-sm pt-2.5">Topic</label>
           <div>
-            <Select placeholder="Select a category" options={['Coding', 'System Design', 'Behavioral', 'Data Structures & Algorithms', 'Database']} value={category} onChange={setCategory}/>
+            <SearchableDropdown
+              placeholder="Select topics"
+              options={['Arrays', 'Strings', 'Trees', 'Graphs', 'Dynamic Programming', 'System Design', 'Behavioral', 'Database', 'Sorting', 'Binary Search']}
+              value={topics}
+              onChange={setTopics}
+              multiple
+            />
             <p className="text-[#6E6E6E] text-xs mt-1.5">
-              <span className="text-white/50 font-medium">Any (default)</span>: All categories selected.
+              {topics.length > 0
+                ? <>Selected: <span className="text-white/50 font-medium">{topics.join(', ')}</span></>
+                : <><span className="text-white/50 font-medium">Any (default)</span>: All topics selected.</>
+              }
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-[140px_1fr] gap-4 items-start p-5">
+        <div className={COL}>
           <label className="font-medium text-white/80 text-sm pt-2">Difficulty</label>
           <div>
             <div className="flex gap-2 flex-wrap">
@@ -199,14 +224,12 @@ function InterviewSetup() {
                 </button>
               ))}
             </div>
-            <p className="text-[#6E6E6E] text-xs mt-1.5">
-              Select one or more. <span className="text-white/50 font-medium">None selected</span> = all difficulties included.
-            </p>
+            <p className="text-[#6E6E6E] text-xs mt-1.5">{diffCaption()}</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-[140px_1fr] gap-4 items-start p-5">
-          <label className="font-medium text-white/80 text-sm pt-2 leading-tight">Interviewer<br/>Style</label>
+        <div className={COL}>
+          <label className="font-medium text-white/80 text-sm pt-2">Interviewer Style</label>
           <div>
             <div className="flex gap-2 flex-wrap">
               {STYLES.map((s) => (
@@ -221,7 +244,7 @@ function InterviewSetup() {
               ))}
             </div>
             <p className="text-[#6E6E6E] text-xs mt-1.5">
-              <span className="text-white/50 font-medium">Practice (default)</span>: Friendly interviewer.
+              <span className="text-white/50 font-medium">{style}</span>: {STYLE_CAPTIONS[style]}
             </p>
           </div>
         </div>
