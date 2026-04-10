@@ -9,8 +9,8 @@ const FOOTER_LINKS = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-white/10 py-12 px-8 mt-20">
-      <div className="max-w-[1440px] mx-auto flex gap-20">
+    <footer className="border-t border-white/10 py-12 px-6 mt-20">
+      <div className="max-w-5xl mx-auto flex gap-20">
         <Link to="/" className="font-bold text-white text-sm leading-tight shrink-0">
           Mock Me<br />Logo
         </Link>

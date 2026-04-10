@@ -84,16 +84,6 @@ const COMPANIES = [
     ),
   },
   {
-    name: 'Netflix',
-    logo: (
-      <span className="flex items-center gap-2">
-        <svg viewBox="0 0 111 30" className="h-4" fill="#E50914">
-          <path d="M105.06 29l-9.51-24.7V29h-9.13V1h9.13l9.51 24.7V1H114v28h-8.94zm-28.6 0V1h9.13v28h-9.13zm-14.8 0l-9.51-24.7V29H43V1h9.13L61.64 25.7V1h9.13v28h-8.01zM30.13 29V9.41H22V1h25.39v8.41h-8.13V29h-9.13zM9.13 29V9.41H1V1h25.39v8.41h-8.13V29H9.13z"/>
-        </svg>
-      </span>
-    ),
-  },
-  {
     name: 'Stripe',
     logo: (
       <span className="flex items-center gap-2 text-[#635BFF] font-semibold text-sm">Stripe</span>
@@ -200,7 +190,7 @@ function CompanyTicker() {
     <div className="border-y border-white/10 py-6 overflow-hidden">
       <div style={{ display: 'flex', width: 'max-content', animation: 'marquee 40s linear infinite' }}>
         {items.map((c, i) => (
-          <span key={i} className="flex items-center gap-2 px-8 shrink-0">
+          <span key={i} className="flex items-center gap-2 px-6 shrink-0">
             {c.logo}
           </span>
         ))}
@@ -292,7 +282,7 @@ export default function LandingPage() {
       <Navbar />
 
       {/* Hero */}
-      <section className="text-center px-8 pt-20 pb-24 max-w-[1440px] mx-auto">
+      <section className="text-center px-6 pt-20 pb-24 max-w-5xl mx-auto">
         <h1 className="text-6xl md:text-8xl font-bold leading-tight tracking-tight mb-6">
           Land Your Dream Job
           <br />
@@ -305,7 +295,7 @@ export default function LandingPage() {
         </p>
         <div className="flex items-center justify-center gap-4 flex-wrap">
           <Link to="/signup">
-            <Button variant="primary" className="px-8 py-3">Get Started</Button>
+            <Button variant="primary" className="px-6 py-3">Get Started</Button>
           </Link>
           <a href="#how" className="text-white/55 hover:text-white text-sm transition-colors flex items-center gap-1.5">
             See how it works
@@ -320,7 +310,7 @@ export default function LandingPage() {
       <CompanyTicker />
 
       {/* Feature 1 */}
-      <section className="max-w-[1440px] mx-auto px-8 py-24 grid md:grid-cols-2 gap-16 items-center section-enter"
+      <section className="max-w-5xl mx-auto px-6 py-24 grid md:grid-cols-2 gap-16 items-center section-enter"
         style={{ animationDelay: '0.1s' }}>
         <div className="rounded-3xl bg-white/5 border border-white/10 aspect-square max-w-sm flex items-center justify-center">
           <svg viewBox="0 0 24 24" className="h-16 w-16 text-white/15" fill="currentColor">
@@ -340,7 +330,7 @@ export default function LandingPage() {
       </section>
 
       {/* Feature 2 — all 4 cards with tilt hover */}
-      <section className="max-w-[1440px] mx-auto px-8 pb-24 grid md:grid-cols-2 gap-16 items-start section-enter"
+      <section className="max-w-5xl mx-auto px-6 pb-24 grid md:grid-cols-2 gap-16 items-start section-enter"
         style={{ animationDelay: '0.15s' }}>
         <div>
           <h2 className="text-4xl font-bold mb-4 leading-tight">
@@ -360,23 +350,23 @@ export default function LandingPage() {
       </section>
 
       {/* How it works */}
-      <section id="how" className="max-w-[1440px] mx-auto px-8 py-24 section-enter" style={{ animationDelay: '0.2s' }}>
+      <section id="how" className="max-w-5xl mx-auto px-6 py-24 section-enter" style={{ animationDelay: '0.2s' }}>
         <h2 className="text-3xl font-bold text-center mb-16">How does MockMe work?</h2>
         <div className="relative grid grid-cols-4 gap-6">
-          <div className="absolute top-5 left-[12.5%] right-[12.5%] border-t border-dashed border-white/15" />
+          <div className="absolute top-13 left-[11%] right-[11%] border-t border-dashed border-white/15 -z-100" />
           {HOW_STEPS.map((step) => (
-            <div key={step.num} className="flex flex-col items-center text-center gap-4 relative">
-              <span className="text-5xl font-bold text-white/12">{step.num}</span>
+            <div key={step.num} className="flex flex-col items-center text-center gap-4 relative group cursor-default">
+              <span className="text-8xl font-bold text-white/16 transition-all duration-300 group-hover:text-[#A5CDFE] group-hover:[text-shadow:0_0_20px_#A5CDFE,0_0_50px_#A5CDFE,0_0_80px_#A5CDFE80]">{step.num}</span>
               <div className="w-2 h-2 rounded-full bg-[#A5CDFE]" />
               <p className="font-semibold text-white/90 text-sm">{step.title}</p>
               <p className="text-white/40 text-xs leading-relaxed">{step.desc}</p>
-            </div>
+            </div>  
           ))}
         </div>
       </section>
 
       {/* Testimonials */}
-      <section className="max-w-[1440px] mx-auto px-8 py-24 section-enter" style={{ animationDelay: '0.25s' }}>
+      <section className="max-w-5xl mx-auto px-6 py-24 section-enter" style={{ animationDelay: '0.25s' }}>
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-2xl font-bold">Don't just take our word for it</h2>
         </div>
@@ -389,7 +379,7 @@ export default function LandingPage() {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="max-w-[1440px] mx-auto px-8 py-24 section-enter" style={{ animationDelay: '0.3s' }}>
+      <section id="faq" className="max-w-5xl mx-auto px-6 py-24 section-enter" style={{ animationDelay: '0.3s' }}>
         <h2 className="text-3xl font-bold text-center text-[#A5CDFE] mb-12">
           Frequently Asked Questions
         </h2>

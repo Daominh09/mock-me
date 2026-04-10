@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom';
 import Button from '../ui/Button';
 
-const NAV_LINKS = ['Roles', 'Companies', 'Practice', 'FAQ'];
+const NAV_LINKS = ['Roles', 'Companies', 'Questions', 'Practice', 'FAQ'];
 
 export default function Navbar() {
   return (
-    <nav className="flex items-center justify-between px-8 py-5 w-full max-w-[1440px] mx-auto">
+    <nav className="flex items-center justify-between px-6 py-5 w-full max-w-5xl mx-auto">
       <Link to="/" className="font-bold text-white text-sm leading-tight text-center">
         Mock Me<br />Logo
       </Link>
@@ -15,7 +15,7 @@ export default function Navbar() {
           <a
             key={link}
             href={`#${link.toLowerCase()}`}
-            className="text-white/75 hover:text-white text-sm px-3 py-1 rounded-full transition-colors"
+            className="text-white/75 hover:text-white text-sm px-3.5 py-1 rounded-full transition-all duration-500 hover:bg-white/10"
           >
             {link}
           </a>
