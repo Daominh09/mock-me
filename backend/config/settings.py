@@ -131,3 +131,6 @@ STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ── LLM ──────────────────────────────────────────────────────────────────────
+OPENAI_API_KEY = env('OPENAI_API_KEY', default=None)
