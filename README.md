@@ -6,10 +6,10 @@ A multi-agent system for CS/LeetCode mock interviews with real-time voice, live 
 
 | Layer | Tech |
 |-------|------|
-| Frontend | React + Vite + Monaco Editor |
+| Frontend | React + Vite + Zustand |
 | Backend | Django 6 + Django REST Framework |
 | Realtime | Django Channels + Redis |
-| Database | PostgreSQL 15 |
+| Database | Supabase + PostgreSQL 15 |
 | AI | OpenAI GPT-4o |
 | Infrastructure | Docker + Docker Compose |
 

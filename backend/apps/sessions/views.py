@@ -40,7 +40,8 @@ class StartSessionView(APIView):
             company_tags__contains=[data["company"]],
         )
         if data.get("difficulty"):
-            qs = qs.filter(difficulty=data["difficulty"])
+            difficulties = [d.strip() for d in data["difficulty"].split(",")]
+            qs = qs.filter(difficulty__in=difficulties)
         if data.get("topic"):
             qs = qs.filter(topic_tags__contains=[data["topic"]])
 
