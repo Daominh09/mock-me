@@ -1,7 +1,12 @@
 import { Link } from 'react-router-dom';
 import Button from '../ui/Button';
 
-const NAV_LINKS = ['Roles', 'Companies', 'Questions', 'Practice', 'FAQ'];
+const NAV_LINKS = [
+  { label: 'Companies',  href: '#companies' },
+  { label: 'Questions',  href: '#questions' },
+  { label: 'Interview',  href: '/dashboard' },
+  { label: 'FAQ',        href: '/faq' },
+];
 
 export default function Navbar() {
   return (
@@ -11,14 +16,24 @@ export default function Navbar() {
       </Link>
 
       <div className="flex items-center gap-1 border border-white/15 rounded-full px-4 py-1.5">
-        {NAV_LINKS.map((link) => (
-          <a
-            key={link}
-            href={`#${link.toLowerCase()}`}
-            className="text-white/75 hover:text-white text-sm px-3.5 py-1 rounded-full transition-all duration-500 hover:bg-white/10"
-          >
-            {link}
-          </a>
+        {NAV_LINKS.map(({ label, href }) => (
+          href.startsWith('/') ? (
+            <Link
+              key={label}
+              to={href}
+              className="text-white/75 hover:text-white text-sm px-3.5 py-1 rounded-full transition-all duration-500 hover:bg-white/10"
+            >
+              {label}
+            </Link>
+          ) : (
+            <a
+              key={label}
+              href={href}
+              className="text-white/75 hover:text-white text-sm px-3.5 py-1 rounded-full transition-all duration-500 hover:bg-white/10"
+            >
+              {label}
+            </a>
+          )
         ))}
       </div>
 

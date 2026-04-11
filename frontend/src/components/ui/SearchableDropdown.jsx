@@ -54,7 +54,7 @@ export default function SearchableDropdown({ placeholder, options, value, onChan
       <button
         type="button"
         onClick={() => { setOpen((o) => !o); setSearch(''); }}
-        className={`w-full flex items-center justify-between bg-[#252220] border border-white/12 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#A5CDFE]/40 transition-colors ${hasValue ? 'text-white' : 'text-white/40'}`}
+        className={`w-full flex items-center justify-between bg-input border border-white/12 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent/40 transition-colors ${hasValue ? 'text-white' : 'text-white/40'}`}
       >
         <span className="truncate">{triggerLabel()}</span>
         <svg
@@ -67,7 +67,7 @@ export default function SearchableDropdown({ placeholder, options, value, onChan
       </button>
 
       {open && (
-        <div className="absolute z-50 w-full mt-1 bg-[#252220] border border-white/12 rounded-xl overflow-hidden shadow-2xl">
+        <div className="absolute z-50 w-full mt-1 bg-input border border-white/12 rounded-xl overflow-hidden shadow-2xl">
           <div className="p-2 border-b border-white/8">
             <input
               autoFocus
@@ -83,10 +83,10 @@ export default function SearchableDropdown({ placeholder, options, value, onChan
             <button
               type="button"
               onClick={clearAll}
-              className={`w-full flex items-center justify-between px-4 py-2 text-sm transition-colors hover:bg-white/5 ${hasValue ? 'text-white/50' : 'text-[#A5CDFE] font-medium'}`}
+              className={`w-full flex items-center justify-between px-4 py-2 text-sm transition-colors hover:bg-white/5 ${hasValue ? 'text-white/50' : 'text-accent font-medium'}`}
             >
               <span>Any</span>
-              {!hasValue && <span className="text-[#A5CDFE] text-xs">✓</span>}
+              {!hasValue && <span className="text-accent text-xs">✓</span>}
             </button>
 
             {filtered.map((o) => (
@@ -94,10 +94,10 @@ export default function SearchableDropdown({ placeholder, options, value, onChan
                 key={o}
                 type="button"
                 onClick={() => toggle(o)}
-                className={`w-full flex items-center justify-between px-4 py-2 text-sm transition-colors hover:bg-white/5 ${isSelected(o) ? 'text-[#A5CDFE] font-medium' : 'text-white/70'}`}
+                className={`w-full flex items-center justify-between px-4 py-2 text-sm transition-colors hover:bg-white/5 ${isSelected(o) ? 'text-accent font-medium' : 'text-white/70'}`}
               >
                 <span>{o}</span>
-                {isSelected(o) && <span className="text-[#A5CDFE] text-xs">✓</span>}
+                {isSelected(o) && <span className="text-accent text-xs">✓</span>}
               </button>
             ))}
 

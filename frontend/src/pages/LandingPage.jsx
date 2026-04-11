@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import Button from '../components/ui/Button';
+import Ticker from '../components/primitives/Ticker';
+import Carousel from '../components/primitives/Carousel';
 
 // ── Company logos for the ticker ────────────────────────────────────────────
 const COMPANIES = [
@@ -184,32 +186,19 @@ const FAQ_ITEMS = [
 ];
 
 // ── Sub-components ────────────────────────────────────────────────────────────
-function CompanyTicker() {
-  const items = [...COMPANIES, ...COMPANIES];
-  return (
-    <div className="border-y border-white/10 py-6 overflow-hidden">
-      <div style={{ display: 'flex', width: 'max-content', animation: 'marquee 40s linear infinite' }}>
-        {items.map((c, i) => (
-          <span key={i} className="flex items-center gap-2 px-6 shrink-0">
-            {c.logo}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
+const COMPANY_LOGOS = COMPANIES.map((c) => c.logo);
 
 // All 4 cards share the same tilt + #A5CDFE bg on hover
 function FeatureCard({ card }) {
   return (
-    <div className="rounded-2xl p-5 border border-white/10 flex flex-col gap-3 transition-all duration-300 cursor-default bg-[#252220] hover:-rotate-3 hover:bg-[#A5CDFE] hover:border-transparent group">
-      <div className="text-[#A5CDFE] group-hover:text-[#1C1917] transition-colors duration-300">
+    <div className="rounded-2xl p-5 border border-white/10 flex flex-col gap-3 transition-all duration-300 cursor-default bg-input hover:-rotate-3 hover:bg-accent hover:border-transparent group">
+      <div className="text-accent group-hover:text-page transition-colors duration-300">
         {card.icon}
       </div>
-      <p className="font-semibold text-sm text-white group-hover:text-[#1C1917] transition-colors duration-300">
+      <p className="font-semibold text-sm text-white group-hover:text-page transition-colors duration-300">
         {card.title}
       </p>
-      <p className="text-xs leading-relaxed text-white/55 group-hover:text-[#1C1917]/65 transition-colors duration-300">
+      <p className="text-xs leading-relaxed text-white/55 group-hover:text-page/65 transition-colors duration-300">
         {card.description}
       </p>
     </div>
@@ -237,39 +226,23 @@ function FAQItem({ q, a }) {
   );
 }
 
-function TestimonialCarousel() {
-  const testimonials = [
-    { name: 'Alex Chen', role: 'SWE @ Google', text: '"MockMe completely changed how I prepared for interviews. The AI felt like a real interviewer — it pushed back, asked follow-ups, and gave me honest feedback. I landed my dream job within 6 weeks."' },
-    { name: 'Sarah Kim', role: 'PM @ Meta', text: '"The behavioral interview practice was incredibly realistic. The AI picked up on vague answers and asked me to elaborate, exactly like a real PM interview. Highly recommended for anyone targeting top tech."' },
-    { name: 'Marcus Johnson', role: 'ML Engineer @ OpenAI', text: '"I used MockMe for system design prep and the feedback was surprisingly detailed. It pointed out bottlenecks in my designs I hadn\'t considered. Worth every minute."' },
-  ];
-  const [idx, setIdx] = useState(0);
-  const prev = () => setIdx((idx - 1 + testimonials.length) % testimonials.length);
-  const next = () => setIdx((idx + 1) % testimonials.length);
-  const t = testimonials[idx];
+const TESTIMONIALS = [
+  { name: 'Alex Chen',      role: 'SWE @ Google',       text: '"MockMe completely changed how I prepared for interviews. The AI felt like a real interviewer — it pushed back, asked follow-ups, and gave me honest feedback. I landed my dream job within 6 weeks."' },
+  { name: 'Sarah Kim',      role: 'PM @ Meta',           text: '"The behavioral interview practice was incredibly realistic. The AI picked up on vague answers and asked me to elaborate, exactly like a real PM interview. Highly recommended for anyone targeting top tech."' },
+  { name: 'Marcus Johnson', role: 'ML Engineer @ OpenAI', text: '"I used MockMe for system design prep and the feedback was surprisingly detailed. It pointed out bottlenecks in my designs I hadn\'t considered. Worth every minute."' },
+];
 
+function TestimonialSlide(t) {
   return (
-    <div className="relative max-w-4xl mx-auto">
-      <div className="flex gap-8 items-center bg-[#1E1C1A] rounded-3xl p-8 min-h-64">
-        <div className="w-40 h-40 rounded-2xl bg-white/8 shrink-0 flex items-center justify-center">
-          <svg viewBox="0 0 24 24" className="h-10 w-10 text-white/20" fill="currentColor">
-            <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-          </svg>
-        </div>
-        <div className="flex-1">
-          <p className="text-white/75 text-sm leading-relaxed italic mb-4">{t.text}</p>
-          <p className="text-white/50 text-sm">{t.name} — {t.role}</p>
-        </div>
+    <div className="flex gap-8 items-center bg-surface rounded-3xl p-8 min-h-64">
+      <div className="w-40 h-40 rounded-2xl bg-white/8 shrink-0 flex items-center justify-center">
+        <svg viewBox="0 0 24 24" className="h-10 w-10 text-white/20" fill="currentColor">
+          <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
       </div>
-      <div className="flex gap-2 justify-end mt-4">
-        {[prev, next].map((fn, i) => (
-          <button key={i} onClick={fn}
-            className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white/60 hover:text-white hover:border-white/40 transition-colors">
-            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d={i === 0 ? 'M15 19l-7-7 7-7' : 'M9 5l7 7-7 7'}/>
-            </svg>
-          </button>
-        ))}
+      <div className="flex-1">
+        <p className="text-white/75 text-sm leading-relaxed italic mb-4">{t.text}</p>
+        <p className="text-white/50 text-sm">{t.name} — {t.role}</p>
       </div>
     </div>
   );
@@ -278,16 +251,16 @@ function TestimonialCarousel() {
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function LandingPage() {
   return (
-    <div className="bg-[#1C1917] min-h-screen text-white page-enter">
+    <div className="bg-page min-h-screen text-white page-enter">
       <Navbar />
 
       {/* Hero */}
       <section className="text-center px-6 pt-20 pb-24 max-w-5xl mx-auto">
-        <h1 className="text-6xl md:text-8xl font-bold leading-tight tracking-tight mb-6">
+        <h1 className="text-[300%] md:text-[500%] font-bold leading-tight tracking-tight mb-6">
           Land Your Dream Job
           <br />
           With Our{' '}
-          <span className="text-[#A5CDFE]">(AI Name).</span>
+          <span className="text-accent">MockMe</span>
         </h1>
         <p className="text-white/55 max-w-xl mx-auto text-base mb-10">
           World-class interview prep accessible to everyone. From product managers to senior software
@@ -307,7 +280,7 @@ export default function LandingPage() {
       </section>
 
       {/* Ticker */}
-      <CompanyTicker />
+      <Ticker items={COMPANY_LOGOS} className="border-y border-white/10 py-6" />
 
       {/* Feature 1 */}
       <section className="max-w-5xl mx-auto px-6 py-24 grid md:grid-cols-2 gap-16 items-center section-enter"
@@ -356,8 +329,8 @@ export default function LandingPage() {
           <div className="absolute top-13 left-[11%] right-[11%] border-t border-dashed border-white/15 -z-100" />
           {HOW_STEPS.map((step) => (
             <div key={step.num} className="flex flex-col items-center text-center gap-4 relative group cursor-default">
-              <span className="text-8xl font-bold text-white/16 transition-all duration-300 group-hover:text-[#A5CDFE] group-hover:[text-shadow:0_0_20px_#A5CDFE,0_0_50px_#A5CDFE,0_0_80px_#A5CDFE80]">{step.num}</span>
-              <div className="w-2 h-2 rounded-full bg-[#A5CDFE]" />
+              <span className="text-8xl font-bold text-white/16 transition-all duration-300 group-hover:text-accent group-hover:[text-shadow:0_0_20px_#A5CDFE,0_0_50px_#A5CDFE,0_0_80px_#A5CDFE80]">{step.num}</span>
+              <div className="w-2 h-2 rounded-full bg-accent" />
               <p className="font-semibold text-white/90 text-sm">{step.title}</p>
               <p className="text-white/40 text-xs leading-relaxed">{step.desc}</p>
             </div>  
@@ -370,7 +343,7 @@ export default function LandingPage() {
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-2xl font-bold">Don't just take our word for it</h2>
         </div>
-        <TestimonialCarousel />
+        <Carousel items={TESTIMONIALS} renderItem={TestimonialSlide} className="max-w-4xl mx-auto" />
         <div className="text-center mt-12">
           <Link to="/signup">
             <Button variant="primary" className="px-10 py-3">Give it a try!</Button>
@@ -380,7 +353,7 @@ export default function LandingPage() {
 
       {/* FAQ */}
       <section id="faq" className="max-w-5xl mx-auto px-6 py-24 section-enter" style={{ animationDelay: '0.3s' }}>
-        <h2 className="text-3xl font-bold text-center text-[#A5CDFE] mb-12">
+        <h2 className="text-3xl font-bold text-center text-accent mb-12">
           Frequently Asked Questions
         </h2>
         <div className="max-w-2xl mx-auto">

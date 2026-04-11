@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { signInWithGoogle, signInWithEmail } from '../services/authService';
+import Footer from '../components/layout/Footer';
 
 function GoogleIcon() {
   return (
@@ -45,7 +46,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#1C1917] flex flex-col page-enter">
+    <div className="min-h-screen bg-page flex flex-col page-enter">
       <Link to="/" className="font-bold text-white text-sm leading-tight p-8 w-fit">
         Mock Me<br />Logo
       </Link>
@@ -55,7 +56,7 @@ export default function LoginPage() {
           <h1 className="text-5xl font-bold text-white text-center mb-3">Log in Mock Me</h1>
           <p className="text-center text-white/50 text-sm mb-8">
             Don't have an account?{' '}
-            <Link to="/signup" className="text-[#60A5FA] font-medium hover:underline">
+            <Link to="/signup" className="text-link font-medium hover:underline">
               Sign up
             </Link>
           </p>
@@ -98,7 +99,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#F0EDE8] hover:bg-white text-black font-semibold rounded-xl py-3.5 text-sm transition-colors disabled:opacity-50"
+              className="w-full bg-text-primary hover:bg-white text-black font-semibold rounded-xl py-3.5 text-sm transition-colors disabled:opacity-50"
             >
               {loading ? 'Signing in…' : 'Log In'}
             </button>
@@ -106,12 +107,14 @@ export default function LoginPage() {
 
           <p className="text-center text-white/40 text-sm">
             Forgot your password?{' '}
-            <button className="text-[#60A5FA] font-medium hover:underline">
+            <button className="text-link font-medium hover:underline">
               Reset here
             </button>
           </p>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }

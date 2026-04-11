@@ -32,7 +32,7 @@ function NavItem({ href, label }) {
     <Link
       to={href}
       className={`flex items-center gap-3 px-2 py-2 rounded-lg text-sm transition-colors ${
-        active ? 'text-white' : 'text-white/55 hover:text-white'
+        active ? 'bg-white/10 text-white' : 'text-white hover:bg-white/8 hover:text-white'
       }`}
     >
       <PlaceholderIcon />

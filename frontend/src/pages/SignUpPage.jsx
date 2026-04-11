@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { signInWithGoogle, signUpWithEmail } from '../services/authService';
+import Footer from '../components/layout/Footer';
 
 function GoogleIcon() {
   return (
@@ -50,7 +51,7 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#1C1917] flex flex-col page-enter">
+    <div className="min-h-screen bg-page flex flex-col page-enter">
       <Link to="/" className="font-bold text-white text-sm leading-tight p-8 w-fit">
         Mock Me<br />Logo
       </Link>
@@ -60,7 +61,7 @@ export default function SignUpPage() {
           <h1 className="text-5xl font-bold text-white text-center mb-3">Sign up to Mock Me</h1>
           <p className="text-center text-white/50 text-sm mb-8">
             Already have an account?{' '}
-            <Link to="/login" className="text-[#60A5FA] font-medium hover:underline">
+            <Link to="/login" className="text-link font-medium hover:underline">
               Log in
             </Link>
           </p>
@@ -102,7 +103,7 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#F0EDE8] hover:bg-white text-black font-semibold rounded-xl py-3.5 text-sm transition-colors disabled:opacity-50"
+              className="w-full bg-text-primary hover:bg-white text-black font-semibold rounded-xl py-3.5 text-sm transition-colors disabled:opacity-50"
             >
               {loading ? 'Creating account…' : 'Sign Up'}
             </button>
@@ -110,12 +111,14 @@ export default function SignUpPage() {
 
           <p className="text-center text-white/40 text-xs leading-relaxed">
             By creating an account, you agree to our{' '}
-            <button className="text-[#60A5FA] hover:underline">terms of service</button>
+            <button className="text-link hover:underline">terms of service</button>
             {' '}and{' '}
-            <button className="text-[#60A5FA] hover:underline">privacy policy</button>.
+            <button className="text-link hover:underline">privacy policy</button>.
           </p>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }
