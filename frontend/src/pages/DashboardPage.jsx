@@ -152,19 +152,11 @@ function InterviewSetup() {
     setLoading(true);
     setError(null);
     try {
-      // Step 1: pick a random question matching the filters
-      const params = {};
-      if (company)              params.company    = company;
-      if (difficulties.length)  params.difficulty = difficulties.map((d) => d.toLowerCase()).join(',');
+      const body = { interview_style: style };
+      if (company)             body.company    = company;
+      if (difficulties.length) body.difficulty = difficulties.map((d) => d.toLowerCase()).join(',');
 
-      const questionRes = await api.get('/api/questions/random/', { params });
-      const questionSlug = questionRes.data.slug;
-
-      // Step 2: create the session with the chosen question slug
-      const sessionRes = await api.post('/api/sessions/start/', {
-        question_slug:    questionSlug,
-        interview_style:  style,
-      });
+      const sessionRes = await api.post('/api/sessions/start/', body);
 
       setSessionId(sessionRes.data.id);
       setQuestion(sessionRes.data.question);

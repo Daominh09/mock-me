@@ -22,11 +22,7 @@ class StartSessionSerializer(serializers.Serializer):
         choices=InterviewSession.Style.choices,
         default=InterviewSession.Style.TECHNICAL,
     )
-    difficulty = serializers.ChoiceField(
-        choices=["easy", "medium", "hard"],
-        required=False,
-        allow_null=True,
-    )
+    difficulty = serializers.CharField(required=False, allow_null=True)
     topic = serializers.CharField(max_length=100, required=False, allow_null=True)
     anonymous_session_id = serializers.UUIDField(required=False, allow_null=True)
 
