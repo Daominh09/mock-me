@@ -30,6 +30,7 @@ COMPANY_ALIASES = {
     "adobe": "Adobe",
     "oracle": "Oracle",
     "tiktok": "TikTok",
+    "openai": "OpenAI",
     "bytedance": "ByteDance",
     "goldman sachs": "Goldman Sachs",
     "jpmorgan": "JPMorgan",

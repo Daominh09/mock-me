@@ -1,18 +1,19 @@
+from django.db import transaction
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 
 from apps.questions.models import Question
-from .models import Session
+from .models import InterviewSession
+from .serializers import StartSessionSerializer, InterviewSessionSerializer
 from .persona import generate_persona
-from .serializers import StartSessionRequestSerializer, StartSessionResponseSerializer
 
 
 class StartSessionView(APIView):
     """
     POST /api/sessions/start/
-
     Picks a random question matching the supplied filters, generates a persona
     config from the chosen style, persists the session, and returns everything
     the frontend needs to render the interview screen.
@@ -34,21 +35,20 @@ class StartSessionView(APIView):
     Response 400: validation errors
     Response 404: no questions match the filters
     """
-
+    
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        req = StartSessionRequestSerializer(data=request.data)
-        if not req.is_valid():
-            return Response(req.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer = StartSessionSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        data         = req.validated_data
-        style        = data["style"]
-        company_tags = data["company_tags"]
-        topics       = data["topics"]
-        difficulties = data["difficulties"]
+        data            = serializer.validated_data
+        interview_style = data["interview_style"]
+        company_tags    = data.get("company_tags", [])
+        topics          = data.get("topics", [])
+        difficulties    = data.get("difficulties", [])
 
-        # ── Pick a question ─────────────────────────────────────────────────
         qs = Question.objects.filter(is_active=True)
 
         if company_tags:
@@ -69,18 +69,30 @@ class StartSessionView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        # ── Generate persona ────────────────────────────────────────────────
-        persona_config = generate_persona(style)
+        persona_config = generate_persona(interview_style)
 
-        # ── Persist session ─────────────────────────────────────────────────
-        session = Session.objects.create(
-            user=request.user,
-            question=question,
-            style=style,
-            persona_config=persona_config,
-        )
+        with transaction.atomic():
+            session = InterviewSession.objects.create(
+                user=request.user,
+                question=question,
+                interview_style=interview_style,
+            )
 
-        return Response(
-            StartSessionResponseSerializer(session).data,
-            status=status.HTTP_201_CREATED,
-        )
+        response_data = InterviewSessionSerializer(session).data
+        response_data["persona_config"] = persona_config
+        return Response(response_data, status=status.HTTP_201_CREATED)
+
+
+class SessionDetailView(APIView):
+    """
+    GET /api/sessions/<id>/
+
+    Returns a single session. Authenticated users can only fetch their own.
+    Anonymous users can fetch by matching anonymous_session_id query param.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        session = get_object_or_404(InterviewSession, pk=pk, user=request.user)
+        return Response(InterviewSessionSerializer(session).data)

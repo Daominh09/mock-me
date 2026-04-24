@@ -1,10 +1,16 @@
+import logging
+
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from rest_framework import status
 
 from .models import Question
 from .serializers import QuestionListSerializer, QuestionDetailSerializer
+from .solution_service import generate_solution
+
+logger = logging.getLogger(__name__)
 
 
 class QuestionViewSet(viewsets.ReadOnlyModelViewSet):
@@ -77,6 +83,34 @@ class QuestionViewSet(viewsets.ReadOnlyModelViewSet):
                 status=404,
             )
         return Response(QuestionDetailSerializer(question).data)
+
+    @action(detail=True, methods=["post"])
+    def solution(self, request, slug=None):
+        """
+        POST /api/questions/<slug>/solution/
+
+        Body (JSON, all optional):
+            { "language": "python" }   # defaults to "python"
+
+        Returns structured solution analysis:
+            solutions   — 1–3 approaches from brute-force to optimal, each with
+                          name, approach, approach_intuition, complexities, code
+            trade_offs  — comparison between each adjacent pair of solutions
+            hint_ladder — 3 progressive hints
+        """
+        question = self.get_object()
+        language = (request.data.get("language") or "python").lower().strip()
+
+        try:
+            result = generate_solution(question, language=language)
+        except Exception as exc:
+            logger.error("solution generation failed for %s: %s", slug, exc)
+            return Response(
+                {"detail": "Solution generation failed. Please try again."},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
+
+        return Response(result)
 
     @action(detail=False, methods=["get"])
     def topics(self, request):

@@ -4,7 +4,7 @@ import Sidebar from '../components/layout/Sidebar';
 import Footer from '../components/layout/Footer';
 import useSessionStore from '../store/sessionStore';
 import SearchableDropdown from '../components/ui/SearchableDropdown';
-import { PillGroup, MultiPillGroup } from '../components/primitives/PillGroup';
+import { MultiPillGroup } from '../components/primitives/PillGroup';
 import { startSession } from '../services/sessionService';
 
 
@@ -33,7 +33,11 @@ const TRENDING = [
 ];
 
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
-const STYLES       = ['Friendly', 'Challenge', 'Thinking'];
+const STYLES = [
+  { label: 'Friendly',   value: 'friendly' },
+  { label: 'Challenged', value: 'challenged' },
+  { label: 'Thinking',   value: 'thinking' },
+];
 
 // ── Quick stats bar ───────────────────────────────────────────────────────────
 const QUICK_STATS = [
@@ -92,9 +96,9 @@ const RECENT = [
 
 // ── Interview setup card ──────────────────────────────────────────────────────
 const STYLE_CAPTIONS = {
-  Friendly:  'Practice mode — supportive interviewer, great for beginners.',
-  Challenge: 'Pushes back on your answers to test depth and confidence.',
-  Thinking:  'Socratic style — guides you to think aloud step by step.',
+  friendly:   'Practice mode — supportive interviewer, great for beginners.',
+  challenged: 'Pushes back on your answers to test depth and confidence.',
+  thinking:   'Socratic style — guides you to think aloud step by step.',
 };
 
 const LOCAL_DEFAULTS = { role: '', topics: [], difficulties: [] };
@@ -123,7 +127,7 @@ function InterviewSetup() {
     setTopics(LOCAL_DEFAULTS.topics);
     setDifficulties(LOCAL_DEFAULTS.difficulties);
     setCompanies([]);
-    setStyle('Friendly');
+    setStyle('friendly');
     setError(null);
   }
 
@@ -131,8 +135,8 @@ function InterviewSetup() {
     setLoading(true);
     setError(null);
     try {
-      const data = await startSession({ companies, style, role, topics, difficulties });
-      setSessionId(data.session_id);
+      const data = await startSession({ companies, style, topics, difficulties });
+      setSessionId(data.id);
       setQuestion(data.question);
       setSolutionSet(data.solution_set ?? null);
       setHints(data.hints ?? null);
@@ -144,6 +148,20 @@ function InterviewSetup() {
       setLoading(false);
     }
   }
+
+  // Mock data for testing without backend
+  // async function handleStart() {
+  //   setSessionId('test-session-123');
+  //   setQuestion({
+  //     title: 'Two Sum',
+  //     description: 'Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.\n\nYou may assume each input has exactly one solution, and you may not use the same element twice.\n\nReturn the answer in any order.',
+  //     constraints: '2 <= nums.length <= 10^4\n-10^9 <= nums[i] <= 10^9\nOnly one valid answer exists.',
+  //     difficulty: 'easy',
+  //     company_tags: ['Google', 'Amazon'],
+  //     topic_tags: ['array', 'hash-table'],
+  //   });
+  //   navigate('/interview');
+  // }
 
   // Dynamic difficulty caption
   function diffCaption() {
@@ -157,7 +175,6 @@ function InterviewSetup() {
       <span key={d}>{i > 0 && ', '}<span className="text-white/50 font-medium">{d}</span></span>
     ))}.</>;
   }
-
 
   return (
     <div className="border border-white/12 rounded-2xl overflow-hidden bg-surface">
@@ -243,9 +260,20 @@ function InterviewSetup() {
         <div className="form-row">
           <label className="font-medium text-white/80 text-sm pt-2">Interviewer Style</label>
           <div>
-            <PillGroup options={STYLES} value={style} onChange={setStyle} />
+            <div className="flex gap-2 flex-wrap">
+              {STYLES.map((s) => (
+                <button key={s.value} onClick={() => setStyle(s.value)}
+                  className={`px-4 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 ${
+                    style === s.value
+                      ? 'border-accent/60 text-accent bg-accent/10'
+                      : 'border-white/15 text-white/45 hover:border-white/30 hover:text-white/70'
+                  }`}>
+                  {s.label}
+                </button>
+              ))}
+            </div>
             <p className="text-muted text-xs mt-1.5">
-              <span className="text-white/50 font-medium">{style}</span>: {STYLE_CAPTIONS[style]}
+              <span className="text-white/50 font-medium">{STYLES.find((s) => s.value === style)?.label}</span>: {STYLE_CAPTIONS[style]}
             </p>
           </div>
         </div>
