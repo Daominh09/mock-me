@@ -1,1 +1,72 @@
-/* Cleared — styles now handled by Tailwind */
+@theme {
+  /* Backgrounds */
+  --color-page:         #1C1917;
+  --color-surface:      #1E1C1A;
+  --color-surface-dark: #1A1815;
+  --color-input:        #252220;
+
+  /* Text */
+  --color-text-primary:   #F0EDE8;
+  --color-text-secondary: #B5B2AE;
+  --color-muted:          #6E6E6E;
+
+  /* Brand / Accent */
+  --color-accent:        #A5CDFE;
+  --color-accent-hover:  #8BB9FC;
+
+  /* Links */
+  --color-link:          #60A5FA;
+
+  /* Borders */
+  --color-border:        #2A2725;
+}
+
+/* ── Keyframes ── */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Page transitions ── */
+@utility page-enter {
+  animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@utility page-enter-fast {
+  animation: scaleIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@utility section-enter {
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── Marquee ── */
+@utility animate-marquee {
+  animation: marquee 40s linear infinite;
+  display: flex;
+  width: max-content;
+}
+
+/* ── Dashboard form row layout ── */
+@utility form-row {
+  display: grid;
+  grid-template-columns: 168px 1fr;
+  gap: 1rem;
+  align-items: start;
+  padding: 1.25rem;
+}

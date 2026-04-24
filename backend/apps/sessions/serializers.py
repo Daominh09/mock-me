@@ -1,30 +1,28 @@
-import uuid
 from rest_framework import serializers
 from apps.questions.serializers import QuestionDetailSerializer
 from .models import InterviewSession
 
 
 class StartSessionSerializer(serializers.Serializer):
-    """
-    Validates the POST /api/sessions/start/ request body.
-
-    Required:
-        company         — filter questions by company tag
-        interview_style — technical / behavioral / mixed
-
-    Optional:
-        difficulty              — easy / medium / hard
-        topic                   — single topic tag
-        anonymous_session_id    — UUID for guest users
-    """
-    company = serializers.CharField(max_length=100)
     interview_style = serializers.ChoiceField(
         choices=InterviewSession.Style.choices,
-        default=InterviewSession.Style.TECHNICAL,
+        default=InterviewSession.Style.FRIENDLY,
     )
-    difficulty = serializers.CharField(required=False, allow_null=True)
-    topic = serializers.CharField(max_length=100, required=False, allow_null=True)
-    anonymous_session_id = serializers.UUIDField(required=False, allow_null=True)
+    company_tags = serializers.ListField(
+        child=serializers.CharField(max_length=100),
+        required=False,
+        default=list,
+    )
+    topics = serializers.ListField(
+        child=serializers.CharField(max_length=100),
+        required=False,
+        default=list,
+    )
+    difficulties = serializers.ListField(
+        child=serializers.CharField(max_length=20),
+        required=False,
+        default=list,
+    )
 
 
 class InterviewSessionSerializer(serializers.ModelSerializer):
@@ -36,7 +34,6 @@ class InterviewSessionSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "user",
-            "anonymous_session_id",
             "question",
             "interview_style",
             "status",
